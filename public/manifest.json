@@ -1,0 +1,16 @@
+{
+  "name": "rssrssrss - RSS Feed Merger",
+  "short_name": "rssrssrss",
+  "description": "Combine multiple RSS feeds into one unified feed",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

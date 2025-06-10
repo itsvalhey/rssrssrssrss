@@ -19,6 +19,7 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [previewItems, setPreviewItems] = useState<FeedItem[]>([]);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [existingUrl, setExistingUrl] = useState<string>('');
 
   const sampleFeeds = [
     { name: 'Tech News Bundle', feeds: ['https://hnrss.org/frontpage', 'https://feeds.arstechnica.com/arstechnica/features', 'https://www.theverge.com/rss/index.xml'] },
@@ -39,6 +40,36 @@ export default function Home() {
       return true;
     } catch (e) {
       return false;
+    }
+  };
+
+  const loadExistingFeed = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      const feedsParam = urlObj.searchParams.get('feeds');
+      
+      if (!feedsParam) {
+        setErrorMessage('No feeds parameter found in URL');
+        return;
+      }
+
+      const decompressed = LZString.decompressFromEncodedURIComponent(feedsParam);
+      if (!decompressed) {
+        setErrorMessage('Failed to decode feed data from URL');
+        return;
+      }
+
+      const feeds = JSON.parse(decompressed);
+      if (!Array.isArray(feeds)) {
+        setErrorMessage('Invalid feed data format');
+        return;
+      }
+
+      setFeedList(feeds.join('\n'));
+      setExistingUrl('');
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage('Invalid URL or failed to decode feed data');
     }
   };
 
@@ -123,7 +154,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-neutral-100 font-sans p-0">
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         <div className="max-w-prose p-8 space-y-8">
         <div className="">
           <h1 className="text-lg font-extrabold font-sans text-white p-2 mb-2 leading-[20px] bg-blue-500 inline-grid grid-cols-2 gap-1">
@@ -137,7 +168,7 @@ export default function Home() {
           </p>
         </div>
 
-<div className="">
+<div className="bg-neutral-300/20 p-4 rounded-md border border-neutral-300">
   <h2 className="font-semibold text-gray-800">Add your RSS feeds</h2>
   <p className="text-sm text-gray-600 mb-2">Enter one RSS feed URL per line</p>
   <div className="space-y-4">
@@ -151,6 +182,31 @@ export default function Home() {
       rows={6}
     />
   </div>
+
+  <div className=" text-center text-sm text-gray-500 flex items-center -mx-4">
+    <div className="flex-1 border-t border-neutral-300"></div>
+    <div className="flex justify-center px-4 text-xs uppercase font-semibold">
+      Or
+    </div>
+    <div className="flex-1 border-t border-neutral-300"></div>
+  </div>
+
+<div className="">
+  <h2 className="font-semibold text-gray-800">Load existing merged feed</h2>
+  <p className="text-sm text-gray-600 mb-2">Paste an existing merged feed URL to edit it</p>
+  <div className="flex gap-2">
+    <input
+      type="text"
+      value={existingUrl}
+      onChange={(e) => {
+        setExistingUrl(e.target.value);
+          loadExistingFeed(e.target.value);
+      }}
+      placeholder="https://yoursite.com/api/merge?feeds=..."
+      className="flex-1 px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+    />
+  </div>
+</div>
   </div>
 
         <div className="">
@@ -180,11 +236,11 @@ export default function Home() {
             </div>
           )}
           </div>
+          <div className="flex-1"></div>
 
-<div className="flex-1"></div>
-<div className="flex h-[calc(100vh)] overflow-y-hidden p-8 pb-0">
-          {/* Live Preview Section */}
-          <div className="mx-auto shadow-2xl border border-neutral-300 rounded-md rounded-b-none bg-white w-[600px] overflow-y-scroll">
+        <div className="hidden lg:block">
+          <div className="flex h-[calc(100vh)] overflow-y-hidden p-8 pb-0 sticky top-0">
+            <div className="mx-auto shadow-2xl border border-neutral-300 rounded-md rounded-b-none bg-white w-[600px] overflow-y-scroll">
           {feedList.length > 0 && (
             <div className="grid grid-cols-3 p-2 pb-1 border-b border-neutral-300 shadow-sm sticky top-0 bg-white">
               <div className="flex items-center">
@@ -198,6 +254,110 @@ export default function Home() {
                 <a href={mergedUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 inline-flex items-center whitespace-nowrap font-semibold text-xs bg-blue-200 px-1.5 py-[2px] rounded-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" className="size-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Get permalink
+                  </a>
+                  </div>
+              </div>
+              )}
+            
+            {isLoadingPreview ? (
+              <div className="space-y-0">
+                {[...Array(5)].map((_, index) => (
+                  <div key={index} className="border border-gray-100 text-sm odd:bg-neutral-100/50 p-2 border-b border-b-neutral-300 animate-pulse">
+                    <div className="h-5 bg-gray-300 rounded w-3/4 mb-2"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded"></div>
+                      <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 bg-gray-300 rounded mr-1"></div>
+                        <div className="h-3 bg-gray-200 rounded w-24"></div>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : previewItems.length > 0 ? (
+              <div className="">
+                {previewItems.map((item, index) => (
+                  <div key={index} className="border border-gray-100 text-sm odd:bg-neutral-50 p-2 max-w-full border-b border-b-neutral-300">
+                    {item.image && (
+                      <img src={item.image} alt={item.title} className="w-full h-48 object-cover mb-2 rounded-md" />
+                    )}
+                    <h4 className="font-semibold text-gray-900 truncate">
+                      <a href={item.link} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-600">
+                        {item.title || 'Untitled'}
+                      </a>
+                    </h4>
+                    <div className="flex-1">
+                      {item.content && (
+                        <p className="text-sm text-gray-600 line-clamp-4 break-normal" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      )}
+                    </div>
+                    <div className="flex justify-between mt-2 text-xs">
+                      <div className="flex items-center">
+                        <img src={`https://s2.googleusercontent.com/s2/favicons?domain=${item.link?.split('/')[2]}`} alt={item.title} className="w-4 h-4 mr-1 rounded-md" />
+                        {item.sourceFeedTitle && (
+                          <p className="text-gray-500">
+                            {item.sourceFeedTitle}
+                          </p>
+                        )}
+                      </div>
+                      {item.pubDate && (
+                        <p className="text-gray-500">
+                          {new Date(item.pubDate).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 px-8 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                </svg>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">No feeds added yet</h3>
+                <p className="text-sm text-gray-500 mb-6">Add RSS feed URLs to see a preview of your merged feed</p>
+                
+                <div className="space-y-3 w-full">
+                  <p className="text-xs text-gray-600 font-semibold uppercase tracking-wider">Try a sample bundle:</p>
+                  {sampleFeeds.map((bundle, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setFeedList(bundle.feeds.join('\n'))}
+                      className="w-full px-4 py-3 text-sm text-left border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="font-semibold text-gray-800">{bundle.name}</div>
+                      <div className="text-xs text-gray-500 mt-1">{bundle.feeds.length} feeds</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Preview Section - Shown only on small screens */}
+        <div className="lg:hidden p-8 pt-0">
+          <div className="mx-auto shadow-2xl border border-neutral-300 rounded-md bg-white max-h-96 overflow-y-scroll">
+          {feedList.length > 0 && (
+            <div className="grid grid-cols-3 p-2 pb-1 border-b border-neutral-300 shadow-sm sticky top-0 bg-white">
+              <div className="flex items-center">
+                {/* Every favicon, make a circle, 16px */}
+                  {previewItems.map((item) => item.link?.split('/')[2]).filter((domain, index, self) => self.indexOf(domain) === index).map((domain, index) => (
+                    <img key={domain} src={`https://s2.googleusercontent.com/s2/favicons?domain=${domain}`} alt={domain} className="w-4 h-4 -ml-2 first:ml-0 border border-neutral-300 rounded-full" style={{ zIndex: index + 1 }} />
+                  ))}
+              </div>
+              <h3 className="text-sm font-semibold text-gray-800 text-center">Merged Feed</h3>
+              <div className="text-right">
+                <a href={mergedUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 inline-flex items-center whitespace-nowrap font-semibold text-xs bg-blue-200 px-1.5 py-[2px] rounded-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="size-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                     Get permalink
                   </a>
