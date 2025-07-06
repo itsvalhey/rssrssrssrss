@@ -94,27 +94,7 @@ export default function Home() {
 		}
 	};
 
-	const validateFeeds = () => {
-		const feedUrls = getFeedsFromList();
-
-		if (feedUrls.length === 0) {
-			setErrorMessage("Please enter at least one RSS feed URL");
-			return false;
-		}
-
-		const invalidFeeds = feedUrls.filter((feed) => !isValidUrl(feed));
-		if (invalidFeeds.length > 0) {
-			setErrorMessage(
-				`Invalid URL${invalidFeeds.length > 1 ? "s" : ""}: ${invalidFeeds.join(
-					", ",
-				)}`,
-			);
-			return false;
-		}
-
-		return true;
-	};
-
+	// This name is now a bit of a misnomer; this function also generates the core feed.
 	const fetchPreview = async () => {
 		const feeds = getFeedsFromList();
 		const validFeeds = feeds.filter((feed) => isValidUrl(feed));

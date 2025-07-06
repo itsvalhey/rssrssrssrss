@@ -9,6 +9,7 @@ A simple, stateless SPA that allows users to combine multiple RSS feeds into a s
 - No account required - just enter your feeds and get a URL
 - Combined feeds are sorted by date (newest first)
 - Original source information is preserved in the merged feed
+- RSS feeds are compressed using LZ-string for better compression, and then [translated into a URI-friendly alphabet space](https://github.com/pieroxy/lz-string/blob/master/src/encodedURIComponent/compressToEncodedURIComponent.ts)
 
 ## Development
 
