@@ -1,15 +1,10 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Heebo } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const heebo = Heebo({
+  variable: "--font-heebo",
   subsets: ["latin"],
 });
 
@@ -106,7 +101,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#3b82f6" />
+        <meta name="theme-color" content="#FF5733" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -114,9 +109,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${heebo.variable} antialiased`}>
         {children}
         <Analytics />
       </body>

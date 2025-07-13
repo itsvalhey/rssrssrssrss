@@ -167,26 +167,19 @@ export default function Home() {
   }, [feedList]);
 
   return (
-    <div className="min-h-screen bg-neutral-100 font-sans p-0">
+    <div className="min-h-screen bg-white font-sans p-0 text-[#111]">
       <div className="flex flex-col lg:flex-row">
         <div className="max-w-prose p-8 space-y-8">
-          <div className="">
-            <h1 className="text-lg font-extrabold font-sans text-white p-2 mb-2 leading-[20px] bg-blue-500 inline-grid grid-cols-2 gap-1">
-              <div>RSS</div>
-              <div className="opacity-80">RSS</div>
-              <div className="opacity-60">RSS</div>
-              <div className="opacity-40">RSS</div>
+          <div>
+            <h1 className="text-4xl font-extrabold mb-2 leading-tight" style={{ color: 'var(--primary)' }}>
+              rssrssrssrss (Val's Version)
             </h1>
-            <p className="text-sm font-sans text-gray-500">
-              Combine multiple RSS feeds into one unified feed
-            </p>
+            <p className="text-lg font-semibold mb-4" style={{ color: '#111' }}>Combine multiple RSS feeds into one unified feed</p>
           </div>
 
-          <div className="bg-neutral-300/20 p-4 rounded-md border border-neutral-300">
-            <h2 className="font-semibold text-gray-800">Add your RSS feeds</h2>
-            <p className="text-sm text-gray-600 mb-2">
-              Enter one RSS feed URL per line
-            </p>
+          <div className="p-6 rounded-xl border border-[#ececf6] shadow-sm" style={{ background: 'rgba(76,0,164,0.75)' }}>
+            <h2 className="font-bold text-xl mb-2" style={{ color: '#fff' }}>Add your RSS feeds</h2>
+            <p className="text-base mb-2" style={{ color: '#fff' }}>Enter one RSS feed URL per line</p>
             <div className="space-y-4">
               <textarea
                 value={feedList}
@@ -194,26 +187,20 @@ export default function Home() {
                   setFeedList(e.target.value);
                   setErrorMessage("");
                 }}
-                className="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 font-mono bg-white"
+                className="w-full px-3 py-2 text-base border border-[#ececf6] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF5733] font-mono bg-white text-[#111]"
                 rows={6}
               />
             </div>
 
-            <div className=" text-center text-sm text-gray-500 flex items-center -mx-4">
-              <div className="flex-1 border-t border-neutral-300" />
-              <div className="flex justify-center px-4 text-xs uppercase font-semibold">
-                Or
-              </div>
-              <div className="flex-1 border-t border-neutral-300" />
+            <div className="text-center text-sm flex items-center -mx-4 my-4" style={{ color: '#fff', opacity: 0.7 }}>
+              <div className="flex-1 border-t border-[#ececf6] opacity-50" />
+              <div className="flex justify-center px-4 text-xs uppercase font-semibold tracking-wider">Or</div>
+              <div className="flex-1 border-t border-[#ececf6] opacity-50" />
             </div>
 
-            <div className="">
-              <h2 className="font-semibold text-gray-800">
-                Load existing merged feed
-              </h2>
-              <p className="text-sm text-gray-600 mb-2">
-                Paste an existing merged feed URL to edit it
-              </p>
+            <div>
+              <h2 className="font-bold text-lg mb-2" style={{ color: '#fff' }}>Load existing merged feed</h2>
+              <p className="text-base mb-2" style={{ color: '#fff' }}>Paste an existing merged feed URL to edit it</p>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -223,53 +210,43 @@ export default function Home() {
                     loadExistingFeed(e.target.value);
                   }}
                   placeholder="https://rssrssrssrss.com/api/merge?feeds=..."
-                  className="flex-1 px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                  className="flex-1 px-3 py-2 text-base border border-[#ececf6] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF5733] bg-white text-[#111]"
                 />
               </div>
             </div>
           </div>
 
-          <div className="">
-            <h2 className="font-semibold text-gray-800">How do I use this?</h2>
-            <p className="text-gray-600">
-              Put the URLs of RSS feeds you want to combine in the box above;
-              idly (or passionately) browse the preview to make sure it's what
-              you want; hit the button to get a permalink (that's a base-64
-              encoded URL of the feeds, so no real worry about bitrot).
-            </p>
+          <div>
+            <h2 className="font-bold text-xl mb-2" style={{ color: 'var(--primary)' }}>How do I use this?</h2>
+            <p className="text-base text-[#333]">Put the URLs of RSS feeds you want to combine in the box above; idly (or passionately) browse the preview to make sure it's what you want; hit the button to get a permalink (that's a base-64 encoded URL of the feeds, so no real worry about bitrot).</p>
           </div>
 
-          <div className="">
-            <h2 className="font-semibold text-gray-800">
-              Why would I want to do this?
-            </h2>
-            <p className="text-gray-600">
-              Lots of things take RSS. Relatively few things do a great job of
-              interleaving multiple RSS feeds. This is a simple tool to do that.
-            </p>
+          <div>
+            <h2 className="font-bold text-xl mb-2" style={{ color: 'var(--primary)' }}>Why would I want to do this?</h2>
+            <p className="text-base text-[#333]">Lots of things take RSS. Relatively few things do a great job of interleaving multiple RSS feeds. This is a simple tool to do that.</p>
           </div>
 
-          <div className="">
-            <h2 className="font-semibold text-gray-800">
-              May I refer to it as rss<sup>4</sup>?
-            </h2>
-            <p className="text-gray-600">If you insist.</p>
+          <div>
+            <h2 className="font-bold text-xl mb-2" style={{ color: 'var(--primary)' }}>May I refer to it as rss<sup>4</sup>?</h2>
+            <p className="text-base text-[#333]">If you insist.</p>
           </div>
 
-          <div className="">
-            <h2 className="font-semibold text-gray-800">Who built this?</h2>
-            <p className="text-gray-600">
-              Your friends at{" "}
+          <div>
+            <h2 className="font-bold text-xl mb-2" style={{ color: 'var(--primary)' }}>Who built this?</h2>
+            <p className="text-base text-[#333]">
+              Those legends over at{' '}
               <a
                 href="https://buttondown.com?utm_source=rss4"
-                className="text-blue-600 hover:text-blue-800"
+                className="link font-bold"
+                style={{ color: 'var(--secondary)' }}
               >
                 Buttondown
               </a>
-              , and they even made it{" "}
+              , and they even made it{' '}
               <a
                 href="https://github.com/buttondown/rssrssrssrss"
-                className="text-blue-600 hover:text-blue-800"
+                className="link font-bold"
+                style={{ color: 'var(--primary)' }}
               >
                 open source
               </a>
@@ -278,7 +255,7 @@ export default function Home() {
           </div>
 
           {errorMessage && (
-            <div className="mt-4 p-3 border border-red-300 rounded-md bg-red-50 text-red-700">
+            <div className="mt-4 p-3 border border-[#FF5733] rounded-md bg-[#fff0eb] text-[#FF5733]">
               <p>{errorMessage}</p>
             </div>
           )}
