@@ -46,6 +46,59 @@ export default function Home() {
   const [previewItems, setPreviewItems] = useState<FeedItem[]>([]);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [existingUrl, setExistingUrl] = useState<string>("");
+  // Update recentPermalinks to store objects with url and timestamp
+  type PermalinkEntry = { url: string; timestamp: number };
+  const [recentPermalinks, setRecentPermalinks] = useState<PermalinkEntry[]>([]);
+
+  // Load recent permalinks from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("recentPermalinks");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          // Migrate from old format (array of strings)
+          if (Array.isArray(parsed) && typeof parsed[0] === 'string') {
+            setRecentPermalinks(parsed.map((url: string) => ({ url, timestamp: Date.now() })));
+          } else {
+            setRecentPermalinks(parsed);
+          }
+        } catch {
+          setRecentPermalinks([]);
+        }
+      }
+    }
+  }, []);
+
+  // Save a new permalink to localStorage and state
+  const savePermalink = (url: string) => {
+    setRecentPermalinks((prev) => {
+      const now = Date.now();
+      const filtered = prev.filter((entry) => entry.url !== url);
+      const updated = [{ url, timestamp: now }, ...filtered].slice(0, 5);
+      localStorage.setItem("recentPermalinks", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Helper to format relative time
+  function formatRelativeTime(timestamp: number) {
+    const now = Date.now();
+    const diff = Math.floor((now - timestamp) / 1000); // seconds
+    if (diff < 5) return 'just now';
+    if (diff < 60) return `${diff}s ago`;
+    const mins = Math.floor(diff / 60);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) return `${weeks}w ago`;
+    const months = Math.floor(days / 30);
+    return `${months}mo ago`;
+  }
+
   const getFeedsFromList = () => {
     return feedList
       .split("\n")
@@ -143,9 +196,9 @@ export default function Home() {
         });
 
       setPreviewItems(items);
-      setMergedUrl(
-        `${window.location.origin}/api/merge?feeds=${compressedFeeds}`,
-      );
+      const permalink = `${window.location.origin}/api/merge?feeds=${compressedFeeds}`;
+      setMergedUrl(permalink);
+      savePermalink(permalink);
     } catch (error) {
       console.error("Error fetching preview:", error);
       setPreviewItems([]);
@@ -179,7 +232,19 @@ export default function Home() {
 
           <div className="p-6 rounded-xl border border-[#ececf6] shadow-sm" style={{ background: 'rgba(76,0,164,0.75)' }}>
             <h2 className="font-bold text-xl mb-2" style={{ color: '#fff' }}>Add your RSS feeds</h2>
-            <p className="text-base mb-2" style={{ color: '#fff' }}>Enter one RSS feed URL per line</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-base mb-0" style={{ color: '#fff' }}>Enter one RSS feed URL per line</p>
+              {feedList.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setFeedList("")}
+                  className="ml-2 text-white underline text-sm font-medium bg-transparent border-none p-0 cursor-pointer hover:opacity-80"
+                  style={{ textDecorationThickness: '2px' }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
             <div className="space-y-4">
               <textarea
                 value={feedList}
@@ -189,6 +254,7 @@ export default function Home() {
                 }}
                 className="w-full px-3 py-2 text-base border border-[#ececf6] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF5733] font-mono bg-white text-[#111]"
                 rows={6}
+                placeholder={`https://website1.com/rss\nhttps://website2.com/rss`}
               />
             </div>
 
@@ -214,6 +280,23 @@ export default function Home() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Recent Permalinks Section */}
+          <div className="p-6 rounded-xl shadow-sm mt-6" style={{ background: '#f7f7fa', border: '2px solid #4c00a4' }}>
+            <h2 className="font-bold text-xl mb-2" style={{ color: '#4c00a4' }}>Recent permalinks</h2>
+            {recentPermalinks.length === 0 || recentPermalinks.every(e => !e.url) ? (
+              <p className="text-base text-[#666]">Recently generated permalinks will appear here.</p>
+            ) : (
+              <ul className="space-y-2">
+                {recentPermalinks.filter(e => e.url).map((entry) => (
+                  <li key={entry.url} className="truncate flex items-center gap-2">
+                    <span className="italic text-xs text-[#666]">({formatRelativeTime(entry.timestamp)})</span>
+                    <a href={entry.url} target="_blank" rel="noopener noreferrer" className="link" style={{ color: '#4c00a4' }}>{entry.url}</a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div>
