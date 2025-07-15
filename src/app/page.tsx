@@ -49,6 +49,7 @@ export default function Home() {
   // Update recentPermalinks to store objects with url and timestamp
   type PermalinkEntry = { url: string; timestamp: number };
   const [recentPermalinks, setRecentPermalinks] = useState<PermalinkEntry[]>([]);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // Load recent permalinks from localStorage on mount
   useEffect(() => {
@@ -79,6 +80,17 @@ export default function Home() {
       localStorage.setItem("recentPermalinks", JSON.stringify(updated));
       return updated;
     });
+  };
+
+  // Handler for copying permalink
+  const handleCopyPermalink = (url: string) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      });
+    }
+    savePermalink(url);
   };
 
   // Helper to format relative time
@@ -198,7 +210,7 @@ export default function Home() {
       setPreviewItems(items);
       const permalink = `${window.location.origin}/api/merge?feeds=${compressedFeeds}`;
       setMergedUrl(permalink);
-      savePermalink(permalink);
+      // Do NOT call savePermalink here
     } catch (error) {
       console.error("Error fetching preview:", error);
       setPreviewItems([]);
@@ -289,9 +301,9 @@ export default function Home() {
               <p className="text-base text-[#666]">Recently generated permalinks will appear here.</p>
             ) : (
               <ul className="space-y-2">
-                {recentPermalinks.filter(e => e.url).map((entry) => (
+                {recentPermalinks.filter(e => e.url).map((entry, idx) => (
                   <li key={entry.url} className="truncate flex items-center gap-2">
-                    <span className="italic text-xs text-[#666]">({formatRelativeTime(entry.timestamp)})</span>
+                    <span className={`italic text-xs text-[#666]${idx === 0 ? ' font-bold' : ''}`}>({formatRelativeTime(entry.timestamp)})</span>
                     <a href={entry.url} target="_blank" rel="noopener noreferrer" className="link" style={{ color: '#4c00a4' }}>{entry.url}</a>
                   </li>
                 ))}
@@ -371,28 +383,15 @@ export default function Home() {
                     Merged Feed
                   </h3>
                   <div className="text-right">
-                    <a
-                      href={mergedUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 inline-flex items-center whitespace-nowrap font-semibold text-xs bg-blue-200 px-1.5 py-[2px] rounded-sm"
+                    <button
+                      type="button"
+                      onClick={() => handleCopyPermalink(mergedUrl)}
+                      className={`inline-flex items-center whitespace-nowrap font-semibold text-xs px-1.5 py-[2px] rounded-sm transition-colors
+                        ${copySuccess ? 'bg-green-500 text-white' : 'bg-blue-200 text-blue-600 hover:text-blue-800'}`}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="size-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        />
-                      </svg>
-                      Get permalink
-                    </a>
+                      <span className="mr-1" role="img" aria-label="clipboard">📋</span>
+                      {copySuccess ? 'Permalink copied!' : 'Copy permalink'}
+                    </button>
                   </div>
                 </div>
               )}
@@ -549,28 +548,15 @@ export default function Home() {
                   Merged Feed
                 </h3>
                 <div className="text-right">
-                  <a
-                    href={mergedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 inline-flex items-center whitespace-nowrap font-semibold text-xs bg-blue-200 px-1.5 py-[2px] rounded-sm"
+                  <button
+                    type="button"
+                    onClick={() => handleCopyPermalink(mergedUrl)}
+                    className={`inline-flex items-center whitespace-nowrap font-semibold text-xs px-1.5 py-[2px] rounded-sm transition-colors
+                      ${copySuccess ? 'bg-green-500 text-white' : 'bg-blue-200 text-blue-600 hover:text-blue-800'}`}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="size-4 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                      />
-                    </svg>
-                    Get permalink
-                  </a>
+                    <span className="mr-1" role="img" aria-label="clipboard">📋</span>
+                    {copySuccess ? 'Permalink copied!' : 'Copy permalink'}
+                  </button>
                 </div>
               </div>
             )}
